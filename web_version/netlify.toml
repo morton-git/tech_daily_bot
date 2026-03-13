@@ -5,6 +5,10 @@
 [build.environment]
   NODE_VERSION = "18"
 
+# 明確指定不要使用 Hugo
+[build.processing]
+  skip_processing = true
+
 [[headers]]
   for = "/*"
   [headers.values]
