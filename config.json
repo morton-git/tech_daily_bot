@@ -1,0 +1,190 @@
+{
+  "telegram": {
+    "bot_token": "YOUR_BOT_TOKEN_HERE",
+    "chat_id": "YOUR_CHAT_ID_HERE"
+  },
+  "ai": {
+    "ollama": {
+      "url": "http://localhost:11434/api/generate",
+      "model": "cwchang/llama3-taide-lx-8b-chat-alpha1"
+    },
+    "gemini": {
+      "api_key": "YOUR_GEMINI_API_KEY_HERE",
+      "model": "gemini-2.0-flash"
+    }
+  },
+  "rss_sources": [
+    {
+      "name": "TechCrunch",
+      "url": "https://techcrunch.com/feed/",
+      "enabled": true
+    },
+    {
+      "name": "The Verge",
+      "url": "https://www.theverge.com/rss/index.xml",
+      "enabled": true
+    },
+    {
+      "name": "Engadget",
+      "url": "https://www.engadget.com/rss.xml",
+      "enabled": true
+    },
+    {
+      "name": "TechNews",
+      "url": "https://technews.tw/feed",
+      "enabled": true
+    },
+    {
+      "name": "Inside",
+      "url": "https://www.inside.com.tw/feed",
+      "enabled": true
+    },
+    {
+      "name": "數位時代",
+      "url": "https://www.bnext.com.tw/rss.xml",
+      "enabled": true
+    },
+    {
+      "name": "iThome",
+      "url": "https://www.ithome.com.tw/rss",
+      "enabled": true
+    },
+    {
+      "name": "Hacker News",
+      "url": "https://hnrss.org/frontpage",
+      "enabled": true
+    },
+    {
+      "name": "Ars Technica",
+      "url": "https://feeds.arstechnica.com/arstechnica/index",
+      "enabled": true
+    },
+    {
+      "name": "Wired",
+      "url": "https://www.wired.com/feed/rss",
+      "enabled": true
+    },
+    {
+      "name": "MIT Technology Review",
+      "url": "https://www.technologyreview.com/feed/",
+      "enabled": true
+    },
+    {
+      "name": "VentureBeat",
+      "url": "https://venturebeat.com/feed/",
+      "enabled": true
+    },
+    {
+      "name": "ZDNet",
+      "url": "https://www.zdnet.com/news/rss.xml",
+      "enabled": true
+    },
+    {
+      "name": "CNET",
+      "url": "https://www.cnet.com/rss/news/",
+      "enabled": true
+    },
+    {
+      "name": "Gizmodo",
+      "url": "https://gizmodo.com/rss",
+      "enabled": true
+    },
+    {
+      "name": "The Register",
+      "url": "https://www.theregister.com/headlines.atom",
+      "enabled": true
+    },
+    {
+      "name": "TechSpot",
+      "url": "https://www.techspot.com/rss.xml",
+      "enabled": true
+    },
+    {
+      "name": "Computerworld",
+      "url": "https://www.computerworld.com/index.rss",
+      "enabled": true
+    },
+    {
+      "name": "InfoWorld",
+      "url": "https://www.infoworld.com/rss/news",
+      "enabled": true
+    },
+    {
+      "name": "TechRepublic",
+      "url": "https://www.techrepublic.com/rss/news",
+      "enabled": true
+    },
+    {
+      "name": "Slashdot",
+      "url": "https://rss.slashdot.org/Slashdot/slashdotMain",
+      "enabled": true
+    },
+    {
+      "name": "ReadWrite",
+      "url": "https://readwrite.com/feed/",
+      "enabled": true
+    },
+    {
+      "name": "Gigaom",
+      "url": "https://gigaom.com/feed/",
+      "enabled": true
+    },
+    {
+      "name": "The Next Web",
+      "url": "https://thenextweb.com/feed/",
+      "enabled": true
+    },
+    {
+      "name": "Mashable",
+      "url": "https://mashable.com/feeds/rss/",
+      "enabled": true
+    },
+    {
+      "name": "Digital Trends",
+      "url": "https://www.digitaltrends.com/feed/",
+      "enabled": true
+    },
+    {
+      "name": "Tom's Hardware",
+      "url": "https://www.tomshardware.com/feeds/all",
+      "enabled": true
+    },
+    {
+      "name": "PCMag",
+      "url": "https://www.pcmag.com/rss",
+      "enabled": true
+    },
+    {
+      "name": "TechCrunch China",
+      "url": "https://techcrunchcn.com/feed",
+      "enabled": true
+    },
+    {
+      "name": "36氪",
+      "url": "https://36kr.com/feed",
+      "enabled": true
+    },
+    {
+      "name": "虎嗅科技",
+      "url": "https://www.huxiu.com/rss/0.xml",
+      "enabled": true
+    }
+  ],
+  "x_sources": {
+    "enabled": true,
+    "accounts": [
+      {"username": "elonmusk", "name": "Elon Musk"},
+      {"username": "sundarpichai", "name": "Sundar Pichai"},
+      {"username": "satyanadella", "name": "Satya Nadella"},
+      {"username": "tim_cook", "name": "Tim Cook"},
+      {"username": "samaltman", "name": "Sam Altman"},
+      {"username": "jaked", "name": "Jack Dorsey"}
+    ],
+    "hashtags": [
+      "AI", "人工智慧", "ChatGPT", "OpenAI", "科技", "blockchain", "元宇宙", "Web3"
+    ],
+    "max_items_per_source": 2
+  },
+  "schedule": "0 9 * * *",
+  "max_news_items": 12
+}

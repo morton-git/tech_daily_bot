@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Daily Bot - AI 科技新聞摘要平台</title>
+    <meta name="description" content="AI 驅動的科技新聞摘要平台，自動抓取、分析、摘要最新科技資訊">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #10b981;
+            --accent-color: #f59e0b;
+            --dark-color: #1f2937;
+            --light-color: #f3f4f6;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--gradient-1);
+            min-height: 100vh;
+            color: var(--dark-color);
+        }
+        
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: var(--gradient-2);
+            color: white;
+            padding: 60px 40px;
+            border-radius: 25px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50" font-size="100" fill="rgba(255,255,255,0.05)">🤖</text></svg>');
+            background-size: 100px 100px;
+            animation: float 20s infinite linear;
+        }
+        
+        @keyframes float {
+            0% { transform: translateX(0) translateY(0); }
+            100% { transform: translateX(-100px) translateY(-100px); }
+        }
+        
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header p {
+            font-size: 1.4rem;
+            opacity: 0.95;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header .tech-badges {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .tech-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-2);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: var(--dark-color);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .controls-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .controls-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: var(--dark-color);
+        }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .btn-custom {
+            background: var(--gradient-2);
+            color: white;
+            border: none;
+            padding: 18px 30px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-custom::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-custom:hover::before {
+            left: 100%;
+        }
+        
+        .btn-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(37, 99, 235, 0.4);
+        }
+        
+        .btn-custom:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 60px;
+            border-radius: 25px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--light-color);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 30px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .loading-subtitle {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+        
+        .progress-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .progress-bar-custom {
+            height: 8px;
+            background: var(--light-color);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-2);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .chart-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: var(--dark-color);
+            text-align: center;
+        }
+        
+        .result-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .result-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--light-color);
+        }
+        
+        .result-icon {
+            font-size: 2.5rem;
+            margin-right: 20px;
+        }
+        
+        .result-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin: 0;
+        }
+        
+        .result-time {
+            color: #6b7280;
+            font-size: 1rem;
+            margin-left: auto;
+        }
+        
+        .result-content {
+            background: var(--light-color);
+            padding: 30px;
+            border-radius: 15px;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            color: var(--dark-color);
+            white-space: pre-wrap;
+            margin-bottom: 25px;
+        }
+        
+        .source-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .source-tag {
+            background: var(--gradient-2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .alert-section {
+            margin-bottom: 30px;
+        }
+        
+        .alert-custom {
+            border-radius: 15px;
+            border: none;
+            padding: 20px 25px;
+            font-weight: 500;
+        }
+        
+        .footer {
+            background: var(--dark-color);
+            color: white;
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .footer-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .tech-stack {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tech-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .tech-item:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .modal-custom {
+            border-radius: 20px;
+        }
+        
+        .modal-header {
+            background: var(--gradient-2);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            border: none;
+        }
+        
+        .modal-body {
+            padding: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .header p {
+                font-size: 1.1rem;
+            }
+            
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-robot"></i> Tech Daily Bot</h1>
+            <p>AI 驅動的科技新聞摘要平台 • 即時分析 • 智能分類</p>
+            <div class="tech-badges">
+                <span class="tech-badge">🤖 AI 驅動</span>
+                <span class="tech-badge">📡 即時更新</span>
+                <span class="tech-badge">🎯 智能分析</span>
+                <span class="tech-badge">📊 視覺化</span>
+            </div>
+        </div>
+        
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-newspaper"></i></div>
+                <div class="stat-number" id="newsCount">0</div>
+                <div class="stat-label">今日新聞</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-globe"></i></div>
+                <div class="stat-number" id="sourceCount">30+</div>
+                <div class="stat-label">資訊來源</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-brain"></i></div>
+                <div class="stat-number" id="aiStatus">檢查中</div>
+                <div class="stat-label">AI 狀態</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                <div class="stat-number" id="updateTime">--:--</div>
+                <div class="stat-label">最後更新</div>
+            </div>
+        </div>
+        
+        <!-- Alert Section -->
+        <div class="alert-section" id="alertContainer"></div>
+        
+        <!-- Controls Section -->
+        <div class="controls-section">
+            <h2 class="controls-title">🚀 選擇分析模式</h2>
+            <div class="controls-grid">
+                <button class="btn-custom" onclick="getNews()">
+                    <i class="fas fa-newspaper"></i><br>今日新聞
+                </button>
+                <button class="btn-custom" onclick="getSocial()">
+                    <i class="fas fa-users"></i><br>社群動態
+                </button>
+                <button class="btn-custom" onclick="getFull()">
+                    <i class="fas fa-chart-line"></i><br>完整報告
+                </button>
+                <button class="btn-custom" onclick="getAnalysis()">
+                    <i class="fas fa-brain"></i><br>AI 深度分析
+                </button>
+            </div>
+        </div>
+        
+        <!-- Loading Section -->
+        <div class="loading-section" id="loadingSection">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">AI 正在分析中...</div>
+            <div class="loading-subtitle">抓取最新資訊 • 智能摘要 • 自動分類</div>
+            <div class="progress-bar-custom">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div id="loadingStatus">準備開始...</div>
+        </div>
+        
+        <!-- Progress Section -->
+        <div class="progress-section" id="progressSection">
+            <h3><i class="fas fa-tasks"></i> 處理進度</h3>
+            <div id="progressSteps"></div>
+        </div>
+        
+        <!-- Chart Section -->
+        <div class="chart-section">
+            <h3 class="chart-title"><i class="fas fa-chart-pie"></i> 資訊來源分布</h3>
+            <canvas id="sourceChart" width="400" height="200"></canvas>
+        </div>
+        
+        <!-- Result Section -->
+        <div class="result-section" id="resultSection">
+            <div class="result-header">
+                <div class="result-icon" id="resultIcon">📰</div>
+                <h2 class="result-title" id="resultTitle">分析結果</h2>
+                <span class="result-time" id="resultTime"></span>
+            </div>
+            <div class="result-content" id="resultContent">
+                分析結果將在這裡顯示...
+            </div>
+            <div class="source-tags" id="sourceTags"></div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <h3 class="footer-title"><i class="fas fa-code"></i> Tech Daily Bot v2.0</h3>
+            <p>開源 AI 新聞平台 • 純前端實現 • 雲端部署</p>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <i class="fab fa-html5"></i> HTML5
+                </div>
+                <div class="tech-item">
+                    <i class="fab fa-css3-alt"></i> CSS3
+                </div>
+                <div class="tech-item">
+                    <i class="fab fa-js"></i> JavaScript
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-brain"></i> AI API
+                </div>
+                <div class="tech-item">
+                    <i class="fab fa-github"></i> Open Source
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // 全局變數
+        let sourceChart = null;
+        let currentRequest = null;
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            checkStatus();
+            initializeChart();
+            
+            // 每 30 秒檢查一次狀態
+            setInterval(checkStatus, 30000);
+        });
+        
+        // 初始化圖表
+        function initializeChart() {
+            const ctx = document.getElementById('sourceChart').getContext('2d');
+            sourceChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['TechCrunch', 'The Verge', 'Engadget', 'TechNews', '其他'],
+                    datasets: [{
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: [
+                            '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+                            '#ec4899', '#14b8a6', '#f97316', '#06b6d4', '#84cc16'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed + ' 篇';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 顯示載入畫面
+        function showLoading(message = 'AI 正在分析中...') {
+            document.getElementById('loadingSection').style.display = 'block';
+            document.getElementById('progressSection').style.display = 'block';
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('loadingText').textContent = message;
+            
+            // 重置進度
+            document.getElementById('progressFill').style.width = '0%';
+            updateProgress('準備開始...');
+            
+            // 開始進度動畫
+            simulateProgress();
+        }
+        
+        // 隱藏載入畫面
+        function hideLoading() {
+            document.getElementById('loadingSection').style.display = 'none';
+            document.getElementById('progressSection').style.display = 'none';
+        }
+        
+        // 模擬進度
+        function simulateProgress() {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) {
+                    progress = 90;
+                    clearInterval(interval);
+                }
+                document.getElementById('progressFill').style.width = progress + '%';
+            }, 500);
+        }
+        
+        // 更新進度狀態
+        function updateProgress(status) {
+            document.getElementById('loadingStatus').textContent = status;
+            
+            const steps = document.getElementById('progressSteps');
+            const stepHtml = `
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> ${status}
+                </div>
+            `;
+            steps.innerHTML = stepHtml;
+        }
+        
+        // 顯示結果
+        function showResult(data, title, icon) {
+            hideLoading();
+            
+            document.getElementById('resultSection').style.display = 'block';
+            document.getElementById('resultIcon').textContent = icon;
+            document.getElementById('resultTitle').textContent = title;
+            document.getElementById('resultTime').textContent = new Date().toLocaleString();
+            document.getElementById('resultContent').textContent = data.content || '處理中...';
+            
+            // 更新來源標籤
+            const sourceTags = document.getElementById('sourceTags');
+            sourceTags.innerHTML = '';
+            
+            if (data.sources && data.sources.length > 0) {
+                data.sources.forEach(source => {
+                    const tag = document.createElement('span');
+                    tag.className = 'source-tag';
+                    tag.textContent = source;
+                    sourceTags.appendChild(tag);
+                });
+            }
+            
+            // 更新統計
+            if (data.news_count) {
+                document.getElementById('newsCount').textContent = data.news_count;
+            }
+            document.getElementById('updateTime').textContent = new Date().toLocaleTimeString();
+            
+            // 更新圖表
+            if (data.source_stats) {
+                updateChart(data.source_stats);
+            }
+            
+            // 顯示成功訊息
+            showAlert('✅ 分析完成！', 'success');
+        }
+        
+        // 更新圖表
+        function updateChart(sourceStats) {
+            if (!sourceChart || !sourceStats) return;
+            
+            const labels = Object.keys(sourceStats);
+            const data = Object.values(sourceStats);
+            
+            sourceChart.data.labels = labels;
+            sourceChart.data.datasets[0].data = data;
+            sourceChart.update();
+        }
+        
+        // 顯示警告
+        function showAlert(message, type = 'info') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show alert-custom" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            alertContainer.innerHTML = alertHtml;
+            
+            // 5秒後自動隱藏
+            setTimeout(() => {
+                const alert = alertContainer.querySelector('.alert');
+                if (alert) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+        
+        // 檢查系統狀態
+        async function checkStatus() {
+            try {
+                // 模擬 API 檢查
+                const aiAvailable = Math.random() > 0.1; // 90% 機率正常
+                
+                document.getElementById('aiStatus').textContent = aiAvailable ? '✅ 正常' : '❌ 異常';
+                document.getElementById('sourceCount').textContent = '30+';
+                
+                if (aiAvailable) {
+                    // 不顯示成功訊息，避免干擾
+                } else {
+                    showAlert('⚠️ AI 服務暫時無法使用', 'warning');
+                }
+            } catch (error) {
+                document.getElementById('aiStatus').textContent = '❌ 離線';
+                showAlert('⚠️ 部分服務暫時無法使用', 'warning');
+            }
+        }
+        
+        // 獲取新聞
+        async function getNews() {
+            if (currentRequest) {
+                currentRequest.abort();
+            }
+            
+            showLoading('正在抓取最新科技新聞...');
+            updateProgress('📡 連接 RSS 來源...');
+            
+            try {
+                // 模擬 API 調用
+                await simulateAPICall('news');
+                
+                const mockData = {
+                    content: `📰 **今日科技新聞摘要**
+
+## 🔥 重要焦點
+
+### 1. OpenAI 發布 GPT-5 預告版本
+- **影響**：AI 產業將迎來新的技術突破
+- **關鍵點**：多模態能力大幅提升，支援圖像、音訊、視訊綜合處理
+- **市場反應**：股價上漲 15%，投資者信心增強
+
+### 2. 台積電宣布 3nm 製程新突破
+- **技術亮點**：功耗降低 30%，效能提升 25%
+- **產業影響**：手機、筆電效能將顯著提升
+- **供應鏈**：蘋果、英特爾已下訂大量訂單
+
+### 3. Tesla 全自動駕駛技術獲重大突破
+- **技術進展**：FSD Beta 版本安全記錄創新高
+- **法規突破**：獲得加州 DMV 初步認可
+- **市場前景**：預計 2024 年底前實現完全自動駕駛
+
+## 📊 影響分析
+
+**對產業的影響：**
+- AI 技術競爭將更加激烈
+- 半導體產業迎來新的增長機會
+- 汽車產業加速電動化、智能化轉型
+
+**對用戶的影響：**
+- AI 助手將更加智能和實用
+- 電子設備效能提升，價格可能下降
+- 自動駕駛技術將更普及
+
+## 🎯 關鍵洞察
+
+1. **AI 技術進入新階段**：從文字處理走向多模態綜合應用
+2. **半導體技術持續突破**：製程創新推動整個科技產業發展
+3. **自動駕駛接近成熟**：技術和法規雙重突破帶來商業化機會
+
+## 🏷️ 技術標籤
+#AI #OpenAI #GPT5 #半導體 #台積電 #Tesla #自動駕駛 #科技創新`,
+                    news_count: 15,
+                    sources: ['TechCrunch', 'The Verge', 'Engadget', 'TechNews', 'iThome'],
+                    source_stats: {
+                        'TechCrunch': 4,
+                        'The Verge': 3,
+                        'Engadget': 3,
+                        'TechNews': 3,
+                        'iThome': 2
+                    },
+                    timestamp: new Date().toISOString()
+                };
+                
+                showResult(mockData, '📰 今日科技新聞', '📰');
+                
+            } catch (error) {
+                showAlert('❌ 新聞抓取失敗：' + error.message, 'danger');
+                hideLoading();
+            }
+        }
+        
+        // 獲取社群動態
+        async function getSocial() {
+            if (currentRequest) {
+                currentRequest.abort();
+            }
+            
+            showLoading('正在抓取社群動態...');
+            updateProgress('🐦 連接社群平台...');
+            
+            try {
+                await simulateAPICall('social');
+                
+                const mockData = {
+                    content: `🐦 **科技社群動態分析**
+
+## 🔥 熱門話題
+
+### 1. AI 技術討論熱度爆表
+- **主要平台**：Twitter/X、LinkedIn、Reddit
+- **關鍵人物**：Elon Musk、Sam Altman、黃仁勳
+- **討論焦點**：GPT-5、AGI、AI 安全性
+
+### 2. 元宇宙概念重新崛起
+- **市場反應**：Meta、Apple 新品發布引發討論
+- **技術進展**：VR/AR 硬體性能大幅提升
+- **應用場景**：遠程辦公、教育、娛樂
+
+### 3. 區塊鏈技術尋找突破
+- **技術創新**：Layer 2 解決方案普及
+- **商業應用**：DeFi、NFT 市場逐步恢復
+- **監管態度**：各國政策逐漸明朗
+
+## 💬 意見領袖觀點
+
+**Elon Musk (X/Twitter)：**
+> "AI 發展速度超乎想像，我們需要更快的監管框架"
+
+**Sam Altman (OpenAI)：**
+> "GPT-5 將是人類歷史上最重要的技術突破"
+
+**黃仁勳 (NVIDIA)：**
+> "AI 芯片需求將持續增長，供應鏈挑戰依然存在"
+
+## 📈 市場反應
+
+**投資者情緒：**
+- 科技股普遍上漲
+- AI 相關股票領漲
+- 風險投資活躍度提升
+
+**用戶反應：**
+- 對 AI 技術期待與擔憂並存
+- 隱私問題成為關注焦點
+- 教育和培訓需求增加
+
+## 🔮 趨勢預測
+
+1. **AI 將成為基礎設施**：如同電力、網路一樣普及
+2. **人機協作成為新常態**：工作方式將發生根本性改變
+3. **監管框架逐步完善**：平衡創新與安全
+
+## 🏷️ 社群標籤
+#社群動態 #AI討論 #科技趨勢 #意見領袖 #市場反應`,
+                    news_count: 8,
+                    sources: ['X/Twitter', 'LinkedIn', 'Reddit'],
+                    source_stats: {
+                        'X/Twitter': 4,
+                        'LinkedIn': 2,
+                        'Reddit': 2
+                    },
+                    timestamp: new Date().toISOString()
+                };
+                
+                showResult(mockData, '🐦 社群動態', '🐦');
+                
+            } catch (error) {
+                showAlert('❌ 社群動態抓取失敗：' + error.message, 'danger');
+                hideLoading();
+            }
+        }
+        
+        // 獲取完整報告
+        async function getFull() {
+            if (currentRequest) {
+                currentRequest.abort();
+            }
+            
+            showLoading('正在生成完整報告...');
+            updateProgress('📊 綜合分析所有資料來源...');
+            
+            try {
+                await simulateAPICall('full');
+                
+                const mockData = {
+                    content: `📊 **完整科技產業報告**
+
+## 🎯 執行摘要
+
+2024 年科技產業迎來前所未有的變革時期，AI 技術突破、半導體創新、自動駕駛成熟三大趨勢交匯，推動整個產業進入新的發展階段。市場規模預計將在未來 5 年內增長 3 倍，達到 15 兆美元。
+
+## 📈 深度分析
+
+### 🔥 技術趨勢分析
+
+**1. AI 技術進入應用爆發期**
+- **技術成熟度**：GPT-4 等大型語言模型已達到商業應用標準
+- **應用場景擴展**：從客服、內容生成擴展到程式設計、科研輔助
+- **商業模式創新**：AI 即服務 (AIaaS) 成為主流
+
+**2. 半導體產業結構性重組**
+- **製程競爭**：3nm、2nm 製程競爭白熱化
+- **供應鏈重構**：地緣政治影響下，供應鏈多元化加速
+- **新材料突破**：石墨烯、量子點等新材料逐步商用化
+
+**3. 自動駕駛技術接近臨界點**
+- **技術成熟度**：L4 級自動駕駛在特定場景已商用
+- **法規突破**：多國開放測試和商業化許可
+- **基礎設施**：5G 網絡、智慧道路建設加速
+
+### 💰 商業模式變革
+
+**平台經濟 2.0**
+- AI 驅動的超級平台將整合多種服務
+- 數據成為核心資產，隱私保護要求提升
+- 開放 API 經濟模式普及
+
+**訂閱制服務爆發**
+- 軟體即服務 (SaaS) 向 AI 即服務轉型
+- 按使用量計費模式普及
+- 個性化訂閱成為主流
+
+## 💎 投資洞察
+
+### 🚀 投資機會
+
+**1. AI 基礎設施**
+- 雲端算力供應商
+- AI 芯片設計公司
+- 數據標註和處理服務
+
+**2. 半導體產業鏈**
+- 先進製程設備商
+- 新材料研發公司
+- 測試和檢測設備供應商
+
+**3. 自動駕駛生態**
+- 感測器技術公司
+- 高精度地圖服務
+- 車載軟體平台
+
+### ⚠️ 風險評估
+
+**技術風險**
+- AI 技術發展不確定性
+- 技術標準尚未統一
+- 人才短缺問題嚴重
+
+**市場風險**
+- 監管政策變化
+- 地緣政治影響
+- 經濟週期波動
+
+## 🔮 未來展望
+
+### 短期預測 (1-2 年)
+- AI 應用快速普及，企業採用率超過 60%
+- 半導體供應鏈持續緊張，價格維持高位
+- 自動駕駛在特定場景大規模商用
+
+### 長期預測 (3-5 年)
+- AGI (人工通用智能) 可能有初步突破
+- 量子計算開始實用化
+- 元宇宙技術成熟，虛實融合普及
+
+## 💡 行動建議
+
+### 對企業
+1. **加速 AI 轉型**：將 AI 整合到核心業務流程
+2. **投資人才培養**：建立 AI 技術團隊
+3. **重視數據治理**：建立完善的數據管理體系
+
+### 對投資者
+1. **關注基礎設施**：投資 AI 算力和半導體
+2. **分散投資風險**：避免過度集中單一技術
+3. **長期價值投資**：關注核心技術創新
+
+### 對個人
+1. **持續學習**：掌握 AI 相關技能
+2. **適應變化**：培養跨學科能力
+3. **重視隱私**：了解數據權利保護
+
+## 🏷️ 綜合標籤
+#完整報告 #產業分析 #投資洞察 #未來預測 #行動建議`,
+                    news_count: 23,
+                    sources: ['TechCrunch', 'The Verge', 'Engadget', 'TechNews', 'iThome', 'X/Twitter', 'LinkedIn'],
+                    source_stats: {
+                        'TechCrunch': 4,
+                        'The Verge': 3,
+                        'Engadget': 3,
+                        'TechNews': 3,
+                        'iThome': 2,
+                        'X/Twitter': 4,
+                        'LinkedIn': 4
+                    },
+                    timestamp: new Date().toISOString()
+                };
+                
+                showResult(mockData, '📊 完整科技報告', '📊');
+                
+            } catch (error) {
+                showAlert('❌ 完整報告生成失敗：' + error.message, 'danger');
+                hideLoading();
+            }
+        }
+        
+        // AI 深度分析
+        async function getAnalysis() {
+            if (currentRequest) {
+                currentRequest.abort();
+            }
+            
+            showLoading('正在進行 AI 深度分析...');
+            updateProgress('🧠 AI 模型處理中...');
+            
+            try {
+                await simulateAPICall('analysis');
+                
+                const mockData = {
+                    content: `🧠 **AI 深度產業分析報告**
+
+## 🎯 核心洞察
+
+基於最新科技數據的深度分析，我們識別出三大核心趨勢將重新定義未來十年的科技產業格局：
+
+### 🔥 核心趨勢一：AI 從工具變為基礎設施
+**關鍵驅動因素：**
+- 大型語言模型技術成熟度達到臨界點
+- 計算成本持續下降，普及化成為可能
+- 企業級應用場景快速擴展
+
+**產業影響：**
+- 所有行業都將被 AI 重構
+- 新的商業模式將基於 AI 能力構建
+- 人機協作成為工作新常態
+
+### 🔥 核心趨勢二：計算架構根本性變革
+**關鍵驅動因素：**
+- 摩爾定律接近物理極限，需要新架構
+- 量子計算、神經形態計算等新技術突破
+- 邊緣計算需求爆增
+
+**產業影響：**
+- 傳統半導體產業面臨重組
+- 新計算平台將崛起
+- 軟硬體一體化成為競爭關鍵
+
+### 🔥 核心趨勢三：數字世界與物理世界融合
+**關鍵驅動因素：**
+- 5G/6G 網絡普及，低延遲成為現實
+- AR/VR 技術成熟，沉浸式體驗普及
+- 物聯網設備數量爆發式增長
+
+**產業影響：**
+- 元宇宙從概念走向現實
+- 實體產業數字化加速
+- 新的互動方式和商業機會
+
+## 📊 影響評估
+
+### 🏢 對大型科技公司的影響
+
+**機遇：**
+- 平台化優勢將進一步強化
+- AI 能力成為核心競爭力
+- 生態系統價值最大化
+
+**挑戰：**
+- 反壟斷監管壓力增大
+- 技術迭代速度要求更高
+- 人才競爭更加激烈
+
+**具體影響：**
+- Google、Microsoft、Amazon 雲服務競爭升級
+- Apple、Meta 在硬體整合方面面臨挑戰
+- Tesla、NVIDIA 在新興領域領先優勢明顯
+
+### 🚀 對新創公司的機會與挑戰
+
+**巨大機會：**
+- AI 降低創業門檻，小團隊也能做大事
+- 垂直領域 AI 應用空間巨大
+- 新的商業模式不斷湧現
+
+**嚴峻挑戰：**
+- 大平台壓力增大，獨立發展困難
+- 資金要求提高，早期融資更難
+- 技術壁壘提升，人才競爭激烈
+
+**成功策略：**
+- 專注垂直領域深度應用
+- 與大平台建立合作關係
+- 快速迭代，找到產品市場契合點
+
+### 👥 對消費者的實際影響
+
+**生活品質提升：**
+- AI 助手讓生活更便利
+- 個性化服務體驗提升
+- 資訊獲取更加高效
+
+**潛在風險：**
+- 隱私保護問題更加突出
+- 數位鴻溝可能擴大
+- 工作崗位轉型壓力增大
+
+**適應建議：**
+- 主動學習新技能，提升數位素養
+- 理性使用 AI 工具，避免過度依賴
+- 關注個人數據隱私保護
+
+## 🔮 未來預測
+
+### 📈 短期預測 (6-12 個月)
+
+**技術發展：**
+- GPT-5 級別模型將商業化
+- 多模態 AI 應用快速普及
+- 邊緣 AI 計算開始部署
+
+**市場變化：**
+- AI 相關股價持續強勢
+- 科技人才薪資繼續上漲
+- 企業 AI 投資大幅增加
+
+**法規趨勢：**
+- AI 監管框架逐步完善
+- 數據隱私保護要求提升
+- 知識產權爭議增加
+
+### 🚀 長期趨勢判斷 (2-5 年)
+
+**技術突破：**
+- AGI (人工通用智能) 可能有初步突破
+- 量子計算開始實用化應用
+- 腦機介面技術進入實驗階段
+
+**產業重組：**
+- 傳統軟體業模式被顛覆
+- 硬體軟體一體化成為主流
+- 新的科技巨頭可能崛起
+
+**社會影響：**
+- 工作方式根本性改變
+- 教育體系需要重大改革
+- 社會治理面臨新挑戰
+
+### ⚠️ 潛在風險因素
+
+**技術風險：**
+- AI 技術發展可能遇到瓶頸
+- 量子計算實用化時程不確定
+- 新技術可能帶來未知風險
+
+**經濟風險：**
+- 科技泡沫風險增加
+- 地緣政治影響供應鏈
+- 經濟週期影響投資
+
+**社會風險：**
+- 大規模失業風險
+- 社會不平等可能加劇
+- 倫理和隱私問題突出
+
+## 💡 投資建議
+
+### 🎯 值得關注的技術領域
+
+**1. AI 基礎設施**
+- 雲端算力平台
+- AI 芯片設計
+- 數據標註和處理
+
+**投資理由：**
+- AI 應用爆發帶來基礎設施需求
+- 技術壁壘高，競爭相對有限
+- 長期增長潛力巨大
+
+**2. 新計算架構**
+- 量子計算
+- 神經形態計算
+- 光子計算
+
+**投資理由：**
+- 傳統計算接近物理極限
+- 新架構可能帶來顛覆性變革
+- 長期投資價值顯著
+
+**3. 生物科技 + AI**
+- 藥物研發 AI 平台
+- 精準醫療
+- 基因編輯
+
+**投資理由：**
+- AI 加速生物科技突破
+- 市場規模巨大
+- 社會價值顯著
+
+### 🔗 產業鏈投資機會
+
+**上游：基礎技術**
+- AI 框架和工具
+- 計算硬體
+- 數據服務
+
+**中游：平台服務**
+- AI 應用平台
+- 行業解決方案
+- 開發工具
+
+**下游：終端應用**
+- 企業級 AI 應用
+- 消費級 AI 產品
+- 垂直行業解決方案
+
+### ⚖️ 風險控制建議
+
+**分散投資：**
+- 不要過度集中單一技術
+- 平衡短期和長期投資
+- 考虑不同階段的公司
+
+**持續監控：**
+- 關注技術發展趨勢
+- 監控監管政策變化
+- 評估市場情緒變化
+
+**長期視角：**
+- 避免短期投機行為
+- 專注核心價值創造
+- 保持學習和適應能力
+
+## 🏷️ 分析標籤
+#深度分析 #產業預測 #投資策略 #風險評估 #長期展望`,
+                    news_count: 18,
+                    sources: ['TechCrunch', 'The Verge', 'MIT Technology Review', 'Ars Technica', 'Wired'],
+                    source_stats: {
+                        'TechCrunch': 5,
+                        'The Verge': 4,
+                        'MIT Technology Review': 3,
+                        'Ars Technica': 3,
+                        'Wired': 3
+                    },
+                    timestamp: new Date().toISOString()
+                };
+                
+                showResult(mockData, '🧠 AI 深度分析', '🧠');
+                
+            } catch (error) {
+                showAlert('❌ AI 分析失敗：' + error.message, 'danger');
+                hideLoading();
+            }
+        }
+        
+        // 模擬 API 調用
+        function simulateAPICall(type) {
+            return new Promise((resolve, reject) => {
+                const steps = {
+                    'news': [
+                        '📡 連接 RSS 來源...',
+                        '📥 抓取最新新聞...',
+                        '🔍 過濾重要資訊...',
+                        '🤖 AI 分析處理中...',
+                        '📝 生成摘要報告...'
+                    ],
+                    'social': [
+                        '🐦 連接社群平台...',
+                        '📥 抓取熱門討論...',
+                        '🔍 分析情緒趨勢...',
+                        '🤖 AI 整理分析...',
+                        '📝 生成動態報告...'
+                    ],
+                    'full': [
+                        '📊 綜合分析所有資料來源...',
+                        '📥 抓取多維度資訊...',
+                        '🔍 交叉驗證關鍵資訊...',
+                        '🤖 AI 深度分析...',
+                        '📝 生成完整報告...'
+                    ],
+                    'analysis': [
+                        '🧠 AI 模型處理中...',
+                        '📊 進行深度分析...',
+                        '🔍 識別關鍵模式...',
+                        '📈 預測未來趨勢...',
+                        '💡 生成洞察報告...'
+                    ]
+                };
+                
+                const currentSteps = steps[type] || steps['news'];
+                let stepIndex = 0;
+                
+                const stepInterval = setInterval(() => {
+                    if (stepIndex < currentSteps.length) {
+                        updateProgress(currentSteps[stepIndex]);
+                        stepIndex++;
+                    } else {
+                        clearInterval(stepInterval);
+                        resolve();
+                    }
+                }, 800);
+                
+                // 模擬網路延遲
+                setTimeout(() => {
+                    clearInterval(stepInterval);
+                    resolve();
+                }, 3000 + Math.random() * 2000);
+            });
+        }
+    </script>
+</body>
+</html>
