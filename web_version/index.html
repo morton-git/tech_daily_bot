@@ -398,8 +398,9 @@ let useMockMode = false;
                     document.getElementById('aiStatus').style.color = 'green';
                     showAlert('API Key 驗證成功！', 'success');
                 } else {
-                    const errorData = await response.text();
-                    console.error('API 錯誤回應:', errorData);
+                    // 只讀取一次 error body
+                    const errorText = await response.text();
+                    console.error('API 錯誤回應:', errorText);
                     document.getElementById('aiStatus').textContent = '❌';
                     document.getElementById('aiStatus').style.color = 'red';
                     
@@ -408,16 +409,14 @@ let useMockMode = false;
                     } else if (response.status === 403) {
                         showAlert('API Key 無效或權限不足', 'danger');
                     } else if (response.status === 429) {
-                        const errorData = await response.json();
-                        if (errorData.error && errorData.error.message.includes('quota')) {
+                        if (errorText.includes('quota')) {
                             showAlert('API 配額已用完，請稍後再試或升級到付費方案', 'warning');
-                            // 降級到模擬模式
                             enableMockMode();
                         } else {
                             showAlert('API 請求過於頻繁，請稍後再試', 'warning');
                         }
                     } else {
-                        showAlert(`API 錯誤 (${response.status}): ${errorData}`, 'danger');
+                        showAlert(`API 錯誤 (${response.status}): ${errorText.substring(0, 100)}...`, 'danger');
                     }
                 }
             } catch (error) {
@@ -676,16 +675,18 @@ let useMockMode = false;
                 });
                 
                 if (!response.ok) {
+                    // 只讀取一次 error body
+                    const errorText = await response.text();
+                    
                     if (response.status === 429) {
-                        const errorData = await response.json();
-                        if (errorData.error && errorData.error.message.includes('quota')) {
+                        if (errorText.includes('quota')) {
                             showAlert('API 配額已用完，切換到模擬模式', 'warning');
                             enableMockMode();
                             // 重新調用模擬模式
                             return callGemini(prompt);
                         }
                     }
-                    throw new Error(`API 錯誤: ${response.status}`);
+                    throw new Error(`API 錯誤: ${response.status} - ${errorText.substring(0, 100)}`);
                 }
                 
                 const data = await response.json();
@@ -694,7 +695,7 @@ let useMockMode = false;
                 console.error('Gemini API 調用失敗:', error);
                 
                 // 如果是配額錯誤，切換到模擬模式
-                if (error.message.includes('429')) {
+                if (error.message.includes('429') || error.message.includes('quota')) {
                     showAlert('API 配額已用完，切換到模擬模式', 'warning');
                     enableMockMode();
                     return callGemini(prompt);
