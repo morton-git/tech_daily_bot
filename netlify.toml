@@ -1,0 +1,23 @@
+[build]
+  publish = "web_version"
+  command = ""
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# 明確指定不要使用任何框架
+[build.processing]
+  skip_processing = true
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
