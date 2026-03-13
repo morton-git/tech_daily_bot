@@ -191,6 +191,50 @@
                 <i class="fas fa-save"></i> 儲存 API Key
             </button>
             <small id="apiKeyStatus">API Key 未設定</small>
+            
+            <div class="mt-3">
+                <button class="btn btn-sm btn-outline-info" onclick="toggleGuide()">
+                    <i class="fas fa-question-circle"></i> 如何獲取 API Key？
+                </button>
+            </div>
+            
+            <div id="apiGuide" class="mt-3 p-3 bg-light rounded" style="display: none;">
+                <h5><i class="fas fa-book"></i> 使用指南</h5>
+                
+                <h6 class="mt-3">🚀 Step 1：獲取 Gemini API Key</h6>
+                <ol>
+                    <li>訪問 <a href="https://aistudio.google.com/apikey" target="_blank">https://aistudio.google.com/apikey</a></li>
+                    <li>登入您的 Google 帳號</li>
+                    <li>點擊 "Create API Key" 按鈕</li>
+                    <li>複製生成的 API Key (類似：AIzaSy...)</li>
+                </ol>
+                
+                <h6 class="mt-3">🔑 Step 2：設定 API Key</h6>
+                <ol>
+                    <li>在上方輸入框貼上您的 API Key</li>
+                    <li>點擊 "儲存 API Key" 按鈕</li>
+                    <li>等待狀態檢查完成 (顯示 ✅)</li>
+                    <li>API Key 會安全儲存在您的瀏覽器中</li>
+                </ol>
+                
+                <h6 class="mt-3">🤖 Step 3：使用 AI 分析</h6>
+                <ol>
+                    <li>選擇分析模式 (新聞/社群/完整/深度)</li>
+                    <li>點擊對應的按鈕</li>
+                    <li>等待 AI 處理完成 (約 10-30 秒)</li>
+                    <li>查看真實的 AI 分析報告</li>
+                </ol>
+                
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-info-circle"></i> <strong>注意事項：</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>API Key 會安全儲存在您的瀏覽器本地</li>
+                        <li>不會上傳到任何伺服器</li>
+                        <li>每次使用都會消耗 Gemini API 配額</li>
+                        <li>建議定期更換 API Key 以確保安全</li>
+                    </ul>
+                </div>
+            </div>
         </div>
         
         <div id="alertContainer"></div>
@@ -250,6 +294,12 @@
     
     <script>
         let apiKey = '';
+        
+        // 切換使用指南顯示
+        function toggleGuide() {
+            const guide = document.getElementById('apiGuide');
+            guide.style.display = guide.style.display === 'none' ? 'block' : 'none';
+        }
         
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
